@@ -23,7 +23,7 @@ function UsersForm() {
 
             <Form onSubmit={onSubmit}>
                 <Form.Group controlId="formName">
-                    <Form.Control type="text" placeholder="Name" value={name} 
+                    <Form.Control type="text" placeholder="Nome" value={name} 
                     onChange={(event) => {
                         setName(event.target.value)
                     }}
