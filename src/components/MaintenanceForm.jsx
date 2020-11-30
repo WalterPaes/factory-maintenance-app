@@ -6,6 +6,7 @@ function MaintenanceForm() {
     const [start, setStart] = useState("");
     const [end, setEnd] = useState("");
     const [description, setDescription] = useState("");
+    const [equipment_id, setEquipmentId] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     
@@ -33,6 +34,12 @@ function MaintenanceForm() {
                     onChange={(event) => {
                         setDescription(event.target.value)
                     }}/>
+                </Form.Group>
+
+                <Form.Group controlId="formEquipment">
+                    <Form.Control as="select">
+                        <option disabled>Default select</option>
+                    </Form.Control>
                 </Form.Group>
 
                 <Button variant="primary" type="submit" size="sm" block>
