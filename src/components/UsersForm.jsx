@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Form, Button, ProgressBar, Alert } from "react-bootstrap";
 import PageLayout from "./layout/PageLayout";
+import api from "../services/api"
 
 function UsersForm() {
     const [name, setName] = useState("");
@@ -9,19 +10,63 @@ function UsersForm() {
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [hasError, setHasError] = useState(false);
     const [errors, setErrors] = useState(false);
     
+    const handleSubmit = useCallback((event)=>{
+        event.preventDefault();
+
+        setIsLoading(true);
+    
+        api.post('/users', {
+                name, 
+                username, 
+                password
+            },{
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+              .then((response) => {
+                setIsLoading(false);
+                setHasError(false);
+                setIsSuccess(true);
+              })
+              .catch((error) => {
+                setIsLoading(false);
+                setIsSuccess(false);
+                setHasError(true);
+                console.log(error.response);
+                setErrors(error.response.data);
+              });
+    
+      }, [name, username, password]);
+
     return(
         <PageLayout pageTitle="Cadastro de Usuário">
-            <Alert variant='danger'>
-                ERRO! Preencha corretamente o formulário!
-            </Alert>
-
+            {isSuccess &&
+                <Alert variant="success">
+                    <strong>SUCESSO!</strong>
+                </Alert>
+            }
+            
+            {hasError &&
+                <Alert variant="danger">
+                    <strong>ERRO!</strong> Preencha corretamente o formulário.
+                    <ul className="text-left">
+                        {Object.keys(errors).map((key) => (
+                            <li>{errors[key]}</li>
+                        ))}
+                    </ul>
+                </Alert>
+            }
+            
             {isLoading &&
                 <ProgressBar animated now={100}/>
             }
 
-            <Form onSubmit={onSubmit}>
+            <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formName">
                     <Form.Control type="text" placeholder="Nome" value={name} 
                     onChange={(event) => {
@@ -44,41 +89,16 @@ function UsersForm() {
                     }}/>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" size="sm" block>
+                <Button variant="primary" type="submit" size="sm" block disabled={isLoading}>
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block>
+                <Button variant="danger" type="reset" size="sm" block disabled={isLoading}>
                     { btnCancel }
                 </Button>
             </Form>
         </PageLayout>
     );
-
-    function onSubmit(event) {
-        event.preventDefault();
-    
-        setIsLoading(true);
-
-        fetch("http://127.0.0.1:8001/api/users", {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name, username, password})
-        })
-        .then((response) => {
-            if (response.status !== 201) {
-                return response.json();
-            }
-            return true;
-        })
-        .then(
-            (result) => {
-                console.log(result);
-                setIsLoading(false);
-                setErrors(result);
-            }
-        );
-    }
 }
 
 export default UsersForm;
