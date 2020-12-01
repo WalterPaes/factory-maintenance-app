@@ -1,10 +1,9 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-//import LoginForm from './components/LoginForm';
-import UsersForm from './components/UsersForm';
 import NavbarMenu from './components/layout/NavbarMenu';
 import { Container, Jumbotron } from 'react-bootstrap';
+import Routes from './router';
 
 function App() {
   return (
@@ -12,7 +11,7 @@ function App() {
       <NavbarMenu></NavbarMenu>
       <Jumbotron>
         <Container>
-          <UsersForm></UsersForm>
+          <Routes></Routes>
         </Container>
       </Jumbotron>
     </div>

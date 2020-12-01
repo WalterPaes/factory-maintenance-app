@@ -1,12 +1,12 @@
-import React, { useState, useCallback } from "react";
-import { Form, Button, ProgressBar, Alert } from "react-bootstrap";
-import PageLayout from "./layout/PageLayout";
-import api from "../services/api"
+import React, { useState, useCallback, useEffect } from "react";
+import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
+import PageLayout from "../../components/layout/PageLayout";
+import api from "../../services/api";
 
-function UsersForm() {
+function EditEquipment({ match }) {
+    const [pageTitle] = useState("Editar Equipamento");
     const [name, setName] = useState("");
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [description, setDescription] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
@@ -17,12 +17,15 @@ function UsersForm() {
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
+        setIsSuccess(false);
+        setHasError(false);
         setIsLoading(true);
+
+        let equipment_id = match.params.equipment_id;
     
-        api.post('/users', {
+        api.put('/equipments/' + equipment_id, {
                 name, 
-                username, 
-                password
+                description,
             },{
                 headers: {
                     'Content-Type': 'application/json'
@@ -30,21 +33,35 @@ function UsersForm() {
             })
               .then((response) => {
                 setIsLoading(false);
-                setHasError(false);
                 setIsSuccess(true);
               })
               .catch((error) => {
                 setIsLoading(false);
-                setIsSuccess(false);
                 setHasError(true);
-                console.log(error.response);
                 setErrors(error.response.data);
               });
-    
-      }, [name, username, password]);
+    }, [name, description, match.params.equipment_id]);
 
+    useEffect(() => {
+        let equipment_id = match.params.equipment_id;
+        
+        api.get('/equipments/' + equipment_id, {},{
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+          .then((response) => {
+            let equipment = response.data;
+            setName(equipment.name);
+            setDescription(equipment.description);
+          })
+          .catch((error) => {
+            console.log(error.response.data);
+          });
+    }, [match.params.equipment_id]);
+    
     return(
-        <PageLayout pageTitle="Cadastro de Usuário">
+        <PageLayout pageTitle={pageTitle}>
             {isSuccess &&
                 <Alert variant="success">
                     <strong>SUCESSO!</strong>
@@ -63,7 +80,7 @@ function UsersForm() {
             }
             
             {isLoading &&
-                <ProgressBar animated now={100}/>
+                <ProgressBar animated now={100} className="mb-3"/>
             }
 
             <Form onSubmit={handleSubmit}>
@@ -74,26 +91,20 @@ function UsersForm() {
                     }}
                     />
                 </Form.Group>
-                
-                <Form.Group controlId="formUserName">
-                    <Form.Control type="text" placeholder="Username" value={username} 
+
+                <Form.Group controlId="formDescription">
+                    <Form.Control as="textarea" rows={3}
+                    placeholder="Descrição" value={description}
                     onChange={(event) => {
-                        setUsername(event.target.value)
+                        setDescription(event.target.value)
                     }}/>
                 </Form.Group>
 
-                <Form.Group controlId="formPassword">
-                    <Form.Control type="password" placeholder="Senha" value={password}
-                    onChange={(event) => {
-                        setPassword(event.target.value)
-                    }}/>
-                </Form.Group>
-
-                <Button variant="primary" type="submit" size="sm" block disabled={isLoading}>
+                <Button variant="primary" type="submit" size="sm" block>
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block disabled={isLoading}>
+                <Button variant="danger" type="reset" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>
@@ -101,4 +112,4 @@ function UsersForm() {
     );
 }
 
-export default UsersForm;
+export default EditEquipment;
