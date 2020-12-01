@@ -37,7 +37,9 @@ function MaintenanceForm() {
                 </Form.Group>
 
                 <Form.Group controlId="formEquipment">
-                    <Form.Control as="select">
+                    <Form.Control as="select" onChange={(event) => {
+                        setEquipmentId(event.target.value)
+                    }}>
                         <option disabled>Default select</option>
                     </Form.Control>
                 </Form.Group>
