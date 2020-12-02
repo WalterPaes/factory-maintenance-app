@@ -12,21 +12,18 @@ function NavbarMenu() {
                         <NavDropdown.Item href="/usuarios">Lista de Usuários</NavDropdown.Item>
                         <NavDropdown.Divider />
                         <NavDropdown.Item href="/cadastrar-usuario">Cadastro de Usuário</NavDropdown.Item>
-                        <NavDropdown.Item href="/editar-usuario">Editar Usuário</NavDropdown.Item>
                     </NavDropdown>
 
                     <NavDropdown title="Equipamentos">
                         <NavDropdown.Item href="/equipamentos">Lista de Equipamentos</NavDropdown.Item>
                         <NavDropdown.Divider />
                         <NavDropdown.Item href="/cadastrar-equipamento">Cadastro de Equipamentos</NavDropdown.Item>
-                        <NavDropdown.Item href="/editar-equipamento">Editar Equipamento</NavDropdown.Item>
                     </NavDropdown>
 
                     <NavDropdown title="Manutenções">
                         <NavDropdown.Item href="/manutencao">Lista de Manutenções</NavDropdown.Item>
                         <NavDropdown.Divider />
                         <NavDropdown.Item href="/cadastrar-manutencao">Adicionar Manutenção</NavDropdown.Item>
-                        <NavDropdown.Item href="/editar-manutencao">Editar Manutenção</NavDropdown.Item>
                     </NavDropdown>
                 </Nav>
                 

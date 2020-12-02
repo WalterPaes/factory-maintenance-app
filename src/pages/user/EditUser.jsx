@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function EditUser({ match }) {
@@ -8,6 +9,7 @@ function EditUser({ match }) {
     const [name, setName] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [status, setStatus] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +29,8 @@ function EditUser({ match }) {
         api.put('/users/' + user_id, {
                 name, 
                 username, 
-                password
+                password,
+                status
             },{
                 headers: {
                     'Content-Type': 'application/json'
@@ -42,7 +45,7 @@ function EditUser({ match }) {
                 setHasError(true);
                 setErrors(error.response.data);
               });
-    }, [name, username, password, match.params.user_id]);
+    }, [name, username, password, status, match.params.user_id]);
 
     useEffect(() => {
         let user_id = match.params.user_id;
@@ -56,6 +59,7 @@ function EditUser({ match }) {
             let user = response.data;
             setName(user.name);
             setUsername(user.username);
+            setStatus(user.status);
           })
           .catch((error) => {
             console.log(error.response.data);
@@ -63,27 +67,13 @@ function EditUser({ match }) {
     }, [match.params.user_id]);
 
     return(
-        <PageLayout pageTitle={pageTitle}>
-            {isSuccess &&
-                <Alert variant="success">
-                    <strong>SUCESSO!</strong>
-                </Alert>
-            }
-            
-            {hasError &&
-                <Alert variant="danger">
-                    <strong>ERRO!</strong> Preencha corretamente o formulário.
-                    <ul className="text-left">
-                        {Object.keys(errors).map((key) => (
-                            <li>{errors[key]}</li>
-                        ))}
-                    </ul>
-                </Alert>
-            }
-            
-            {isLoading &&
-                <ProgressBar animated now={100} className="mb-3"/>
-            }
+        <PageLayout pageTitle={pageTitle} size="md">
+            <FormAlertState
+                success={isSuccess}
+                error={hasError}
+                errors={errors}
+                loading={isLoading}
+            />
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formName">
@@ -108,11 +98,20 @@ function EditUser({ match }) {
                     }}/>
                 </Form.Group>
 
+                <Form.Group controlId="formStatus">
+                    <Form.Control as="select" onChange={(event) => {
+                        setStatus(event.target.value);
+                    }}>
+                        <option value={1}>Ativo</option>
+                        <option value={0}>Inativo</option>
+                    </Form.Control>
+                </Form.Group>
+
                 <Button variant="primary" type="submit" size="sm" block disabled={isLoading}>
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block disabled={isLoading}>
+                <Button href={"/usuario/" + match.params.user_id} variant="danger" size="sm" block disabled={isLoading}>
                     { btnCancel }
                 </Button>
             </Form>

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function EditMaintenance({ match }) {
@@ -84,27 +85,13 @@ function EditMaintenance({ match }) {
     }, [match.params.maintenance_id]);
     
     return(
-        <PageLayout pageTitle={pageTitle}>
-            {isSuccess &&
-                <Alert variant="success">
-                    <strong>SUCESSO!</strong>
-                </Alert>
-            }
-            
-            {hasError &&
-                <Alert variant="danger">
-                    <strong>ERRO!</strong> Preencha corretamente o formulário.
-                    <ul className="text-left">
-                        {Object.keys(errors).map((key) => (
-                            <li>{errors[key]}</li>
-                        ))}
-                    </ul>
-                </Alert>
-            }
-            
-            {isLoading &&
-                <ProgressBar animated now={100} className="mb-3"/>
-            }
+        <PageLayout pageTitle={pageTitle} size="md">
+            <FormAlertState
+                success={isSuccess}
+                error={hasError}
+                errors={errors}
+                loading={isLoading}
+            />
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formStartDate">
@@ -145,7 +132,7 @@ function EditMaintenance({ match }) {
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block>
+                <Button href={"/manutencao/" + match.params.maintenance_id} variant="danger" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>

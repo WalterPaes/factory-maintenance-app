@@ -1,50 +1,43 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
-function CreateUser() {
-    const [pageTitle] = useState("Cadastro de Usuário");
-    const [name, setName] = useState("");
+function LoginForm() {
+    const [title] = useState("Login");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [btnSave] = useState("Salvar");
-    const [btnCancel] = useState("Cancelar");
+    const [btnLogin] = useState("Acessar");
     const [isLoading, setIsLoading] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+    const [isSuccess] = useState(false);
     const [hasError, setHasError] = useState(false);
     const [errors, setErrors] = useState(false);
-    
+
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
-        setIsSuccess(false);
         setHasError(false);
         setIsLoading(true);
     
-        api.post('/users', {
-                name, 
-                username, 
-                password
-            },{
+        api.post('/login', {username, password},
+            {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
               .then((response) => {
                 setIsLoading(false);
-                setIsSuccess(true);
               })
               .catch((error) => {
                 setIsLoading(false);
                 setHasError(true);
                 setErrors(error.response.data);
               });
-    }, [name, username, password]);
+    }, [username, password]);
 
     return(
-        <PageLayout pageTitle={pageTitle} size="md">
+        <PageLayout pageTitle={title} size="sm">
             <FormAlertState
                 success={isSuccess}
                 error={hasError}
@@ -53,14 +46,6 @@ function CreateUser() {
             />
 
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formName">
-                    <Form.Control type="text" placeholder="Nome" value={name} 
-                    onChange={(event) => {
-                        setName(event.target.value)
-                    }}
-                    />
-                </Form.Group>
-                
                 <Form.Group controlId="formUserName">
                     <Form.Control type="text" placeholder="Username" value={username} 
                     onChange={(event) => {
@@ -75,16 +60,12 @@ function CreateUser() {
                     }}/>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" size="sm" block disabled={isLoading}>
-                    { btnSave }
-                </Button>
-
-                <Button variant="danger" type="reset" size="sm" block disabled={isLoading}>
-                    { btnCancel }
+                <Button variant="primary" type="submit" block>
+                    { btnLogin }
                 </Button>
             </Form>
         </PageLayout>
     );
 }
 
-export default CreateUser;
+export default LoginForm;

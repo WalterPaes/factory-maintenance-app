@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function EditEquipment({ match }) {
@@ -61,27 +62,13 @@ function EditEquipment({ match }) {
     }, [match.params.equipment_id]);
     
     return(
-        <PageLayout pageTitle={pageTitle}>
-            {isSuccess &&
-                <Alert variant="success">
-                    <strong>SUCESSO!</strong>
-                </Alert>
-            }
-            
-            {hasError &&
-                <Alert variant="danger">
-                    <strong>ERRO!</strong> Preencha corretamente o formulário.
-                    <ul className="text-left">
-                        {Object.keys(errors).map((key) => (
-                            <li>{errors[key]}</li>
-                        ))}
-                    </ul>
-                </Alert>
-            }
-            
-            {isLoading &&
-                <ProgressBar animated now={100} className="mb-3"/>
-            }
+        <PageLayout pageTitle={pageTitle} size="md">
+            <FormAlertState
+                success={isSuccess}
+                error={hasError}
+                errors={errors}
+                loading={isLoading}
+            />
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formName">
@@ -104,7 +91,7 @@ function EditEquipment({ match }) {
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block>
+                <Button href={"/equipamento/" + match.params.equipment_id} variant="danger" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>
