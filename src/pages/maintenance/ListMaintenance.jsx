@@ -1,36 +1,44 @@
 import React, {useState, useEffect} from "react";
 import { Table, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function ListMaintenance() {
     const [pageTitle] = useState("Listagem de Manutenções");
     const [maintenances, setMaintenances] = useState([]);
+    const [errorMsg, setErrorMsg] = useState(false);
 
     useEffect(() => {
-        api.get('/maintenances', {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/maintenances')
           .then((response) => {
             setMaintenances(response.data.data);
           })
           .catch((error) => {
-            console.log(error.response)
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, []);
 
     return(
         <PageLayout pageTitle={pageTitle} size="lg">
+            <FormAlertState
+                success={false}
+                error={errorMsg}
+                errors={false}
+                loading={false}
+            />
+
             <Table striped bordered responsive>
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Data de Início</th>
                         <th>Data de Fim</th>
-                        <th>Equipamento</th>
                         <th>Responsável</th>
+                        <th>Equipamento</th>
                         <th>Ação</th>
                     </tr>
                 </thead>

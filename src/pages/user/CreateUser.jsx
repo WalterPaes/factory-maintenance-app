@@ -13,33 +13,39 @@ function CreateUser() {
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [errors, setErrors] = useState(false);
     
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
         setIsSuccess(false);
-        setHasError(false);
+        setErrorMsg(false);
         setIsLoading(true);
     
         api.post('/users', {
                 name, 
                 username, 
                 password
-            },{
-                headers: {
-                    'Content-Type': 'application/json'
-                }
             })
               .then((response) => {
                 setIsLoading(false);
                 setIsSuccess(true);
               })
               .catch((error) => {
+                if (error.response.status === 401) {
+                    window.location.href = "/logout";
+                }
+
                 setIsLoading(false);
-                setHasError(true);
-                setErrors(error.response.data);
+                if (error.response.status === 422) {
+                    setErrorMsg('Preencha corretamente o formulário!')
+                    setErrors(error.response.data);
+                }
+                
+                if (error.response.status === 500) {
+                    setErrorMsg('Um erro ocorreu!')
+                }
               });
     }, [name, username, password]);
 
@@ -47,7 +53,7 @@ function CreateUser() {
         <PageLayout pageTitle={pageTitle} size="md">
             <FormAlertState
                 success={isSuccess}
-                error={hasError}
+                error={errorMsg}
                 errors={errors}
                 loading={isLoading}
             />
@@ -75,11 +81,11 @@ function CreateUser() {
                     }}/>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" size="sm" block disabled={isLoading}>
+                <Button variant="primary" type="submit" size="sm" block>
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block disabled={isLoading}>
+                <Button href="/usuarios" variant="danger" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>

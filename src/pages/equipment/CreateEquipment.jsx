@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
@@ -12,32 +12,38 @@ function CreateEquipment() {
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [errors, setErrors] = useState(false);
     
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
         setIsSuccess(false);
-        setHasError(false);
+        setErrorMsg(false);
         setIsLoading(true);
     
         api.post('/equipments', {
                 name, 
                 description,
-            },{
-                headers: {
-                    'Content-Type': 'application/json'
-                }
             })
               .then((response) => {
                 setIsLoading(false);
                 setIsSuccess(true);
               })
               .catch((error) => {
+                if (error.response.status === 401) {
+                    window.location.href = "/logout";
+                }
+
                 setIsLoading(false);
-                setHasError(true);
-                setErrors(error.response.data);
+                if (error.response.status === 422) {
+                    setErrorMsg('Preencha corretamente o formulário!')
+                    setErrors(error.response.data);
+                }
+                
+                if (error.response.status === 500) {
+                    setErrorMsg('Um erro ocorreu!')
+                }
               });
     }, [name, description]);
     
@@ -45,7 +51,7 @@ function CreateEquipment() {
         <PageLayout pageTitle={pageTitle} size="md">
             <FormAlertState
                 success={isSuccess}
-                error={hasError}
+                error={errorMsg}
                 errors={errors}
                 loading={isLoading}
             />

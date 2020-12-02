@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import { Card, Row, Col, Badge, Button, ListGroup } from "react-bootstrap";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function ShowEquipment({ match }) {
@@ -10,41 +11,47 @@ function ShowEquipment({ match }) {
     const [btnEdit] = useState("Editar");
     const [btnDelete] = useState("Excluir");
     const [maintenances, setMaintenances] = useState([]);
+    const [errorMsg, setErrorMsg] = useState(false);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
         
-        api.get('/equipments/' + equipment_id, {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/equipments/' + equipment_id)
           .then((response) => {
             setEquipment(response.data);
           })
           .catch((error) => {
-            console.log(error.response)
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.equipment_id]);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
         
-        api.get("/equipments/" + equipment_id + "/maintenances", {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get("/equipments/" + equipment_id + "/maintenances")
           .then((response) => {
             setMaintenances(response.data.data);
           })
           .catch((error) => {
-            console.log(error.response)
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.equipment_id]);
 
     return(
         <PageLayout pageTitle={pageTitle} size="lg">
+            <FormAlertState
+                success={false}
+                error={errorMsg}
+                errors={false}
+                loading={false}
+            />
+
             <Card body className="text-left mb-3">
                 <Row>
                     <Col>

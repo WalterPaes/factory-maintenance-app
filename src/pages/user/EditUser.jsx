@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
@@ -14,14 +14,14 @@ function EditUser({ match }) {
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [errors, setErrors] = useState(false);
     
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
         setIsSuccess(false);
-        setHasError(false);
+        setErrorMsg(false);
         setIsLoading(true);
     
         let user_id = match.params.user_id;
@@ -31,30 +31,32 @@ function EditUser({ match }) {
                 username, 
                 password,
                 status
-            },{
-                headers: {
-                    'Content-Type': 'application/json'
-                }
             })
               .then((response) => {
                 setIsLoading(false);
                 setIsSuccess(true);
               })
               .catch((error) => {
+                if (error.response.status === 401) {
+                    window.location.href = "/logout";
+                }
+
                 setIsLoading(false);
-                setHasError(true);
-                setErrors(error.response.data);
+                if (error.response.status === 422) {
+                    setErrorMsg('Preencha corretamente o formulário!')
+                    setErrors(error.response.data);
+                }
+                
+                if (error.response.status === 500) {
+                    setErrorMsg('Um erro ocorreu!')
+                }
               });
     }, [name, username, password, status, match.params.user_id]);
 
     useEffect(() => {
         let user_id = match.params.user_id;
         
-        api.get('/users/' + user_id, {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/users/' + user_id)
           .then((response) => {
             let user = response.data;
             setName(user.name);
@@ -62,7 +64,10 @@ function EditUser({ match }) {
             setStatus(user.status);
           })
           .catch((error) => {
-            console.log(error.response.data);
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.user_id]);
 
@@ -70,7 +75,7 @@ function EditUser({ match }) {
         <PageLayout pageTitle={pageTitle} size="md">
             <FormAlertState
                 success={isSuccess}
-                error={hasError}
+                error={errorMsg}
                 errors={errors}
                 loading={isLoading}
             />

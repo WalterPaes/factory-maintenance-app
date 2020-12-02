@@ -15,14 +15,14 @@ function EditMaintenance({ match }) {
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [errors, setErrors] = useState(false);
     
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
         setIsSuccess(false);
-        setHasError(false);
+        setErrorMsg(false);
         setIsLoading(true);
 
         let id = match.params.maintenance_id
@@ -32,46 +32,45 @@ function EditMaintenance({ match }) {
                 end,
                 description,
                 equipment_id
-            },{
-                headers: {
-                    'Content-Type': 'application/json'
-                }
             })
               .then((response) => {
                 setIsLoading(false);
-                setHasError(false);
                 setIsSuccess(true);
               })
               .catch((error) => {
+                if (error.response.status === 401) {
+                    window.location.href = "/logout";
+                }
+
                 setIsLoading(false);
-                setIsSuccess(false);
-                setHasError(true);
-                setErrors(error.response.data);
+                if (error.response.status === 422) {
+                    setErrorMsg('Preencha corretamente o formulário!')
+                    setErrors(error.response.data);
+                }
+                
+                if (error.response.status === 500) {
+                    setErrorMsg('Um erro ocorreu!')
+                }
               });
     }, [start, end, description, equipment_id, match.params.maintenance_id]);
 
     useEffect(() => {
-        api.get('/equipments', {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/equipments')
           .then((response) => {
             setEquipments(response.data.data);
           })
           .catch((error) => {
-            console.log(error.response)
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, []);
 
     useEffect(() => {
         let id = match.params.maintenance_id;
         
-        api.get('/maintenances/' + id, {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/maintenances/' + id)
           .then((response) => {
             let maintenance = response.data;
             setStart(maintenance.start)
@@ -80,7 +79,10 @@ function EditMaintenance({ match }) {
             setEquipmentId(maintenance.equipment_id)
           })
           .catch((error) => {
-            console.log(error.response.data);
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.maintenance_id]);
     
@@ -88,7 +90,7 @@ function EditMaintenance({ match }) {
         <PageLayout pageTitle={pageTitle} size="md">
             <FormAlertState
                 success={isSuccess}
-                error={hasError}
+                error={errorMsg}
                 errors={errors}
                 loading={isLoading}
             />

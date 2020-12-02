@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import { Card, Row, Col, Badge, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function ShowUser({ match }) {
@@ -8,25 +9,32 @@ function ShowUser({ match }) {
     const [user, setUser] = useState([]);
     const [btnEdit] = useState("Editar");
     const [btnDelete] = useState("Excluir");
+    const [errorMsg, setErrorMsg] = useState(false);
 
     useEffect(() => {
         let user_id = match.params.user_id;
         
-        api.get('/users/' + user_id, {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/users/' + user_id)
           .then((response) => {
             setUser(response.data);
           })
           .catch((error) => {
-            console.log(error.response)
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.user_id]);
 
     return(
         <PageLayout pageTitle={pageTitle} size="lg">
+            <FormAlertState
+                success={false}
+                error={errorMsg}
+                errors={false}
+                loading={false}
+            />
+            
             <Card body className="text-left mb-3">
                 <Row>
                     <Col>

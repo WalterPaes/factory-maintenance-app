@@ -1,12 +1,14 @@
 import React, {useState, useEffect} from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
+import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
 
 function ShowMaintenance({ match }) {
     const [pageTitle] = useState("Detalhes da Manutenção");
     const [btnEdit] = useState("Editar");
     const [btnDelete] = useState("Excluir");
+    const [errorMsg, setErrorMsg] = useState(false);
     const [maintenance, setMaintenance] = useState({
         equipment: {
             name: ""
@@ -19,22 +21,27 @@ function ShowMaintenance({ match }) {
     useEffect(() => {
         let maintenance_id = match.params.maintenance_id;
         
-        api.get('/maintenances/' + maintenance_id, {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/maintenances/' + maintenance_id)
           .then((response) => {
-            console.log(response.data);
             setMaintenance(response.data);
           })
           .catch((error) => {
-            console.log(error.response)
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.maintenance_id]);
 
     return(
         <PageLayout pageTitle={pageTitle} size="lg">
+            <FormAlertState
+                success={false}
+                error={errorMsg}
+                errors={false}
+                loading={false}
+            />
+
             <Card body className="text-left mb-3">
                 <Row>
                     <Col>

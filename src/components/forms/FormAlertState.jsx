@@ -4,15 +4,15 @@ import { ProgressBar, Alert } from "react-bootstrap";
 function FormAlertState(props) {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [errors, setErrors] = useState(false);
 
     useEffect(() => {
         setIsSuccess(props.success);
         setIsLoading(props.loading);
-        setHasError(props.error);
+        setErrorMsg(props.error);
         setErrors(props.errors);
-    }, [isSuccess, isLoading, hasError, errors, props]);
+    }, [isSuccess, isLoading, errorMsg, errors, props]);
 
     return(
         <>
@@ -22,12 +22,12 @@ function FormAlertState(props) {
             </Alert>
         }
         
-        {hasError &&
+        {errorMsg &&
             <Alert variant="danger">
-                <strong>ERRO!</strong> Preencha corretamente o formulário.
+                <strong>ERRO!</strong> {errorMsg}
                 <ul className="text-left">
-                    {Object.keys(errors).map((key) => (
-                        <li>{errors[key]}</li>
+                    {Object.keys(errors).map((i) => (
+                        <li key={errors[i]}>{errors[i]}</li>
                     ))}
                 </ul>
             </Alert>

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Form, ProgressBar, Alert, Button } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
 import api from "../../services/api";
@@ -12,14 +12,14 @@ function EditEquipment({ match }) {
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [hasError, setHasError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(false);
     const [errors, setErrors] = useState(false);
     
     const handleSubmit = useCallback((event)=>{
         event.preventDefault();
 
         setIsSuccess(false);
-        setHasError(false);
+        setErrorMsg(false);
         setIsLoading(true);
 
         let equipment_id = match.params.equipment_id;
@@ -27,37 +27,42 @@ function EditEquipment({ match }) {
         api.put('/equipments/' + equipment_id, {
                 name, 
                 description,
-            },{
-                headers: {
-                    'Content-Type': 'application/json'
-                }
             })
               .then((response) => {
                 setIsLoading(false);
                 setIsSuccess(true);
               })
               .catch((error) => {
+                if (error.response.status === 401) {
+                    window.location.href = "/logout";
+                }
+
                 setIsLoading(false);
-                setHasError(true);
-                setErrors(error.response.data);
+                if (error.response.status === 422) {
+                    setErrorMsg('Preencha corretamente o formulário!')
+                    setErrors(error.response.data);
+                }
+                
+                if (error.response.status === 500) {
+                    setErrorMsg('Um erro ocorreu!')
+                }
               });
     }, [name, description, match.params.equipment_id]);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
         
-        api.get('/equipments/' + equipment_id, {},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        api.get('/equipments/' + equipment_id)
           .then((response) => {
             let equipment = response.data;
             setName(equipment.name);
             setDescription(equipment.description);
           })
           .catch((error) => {
-            console.log(error.response.data);
+            setErrorMsg('Um erro ocorreu!')
+            if (error.response.status === 401) {
+                window.location.href = "/logout";
+            }
           });
     }, [match.params.equipment_id]);
     
@@ -65,7 +70,7 @@ function EditEquipment({ match }) {
         <PageLayout pageTitle={pageTitle} size="md">
             <FormAlertState
                 success={isSuccess}
-                error={hasError}
+                error={errorMsg}
                 errors={errors}
                 loading={isLoading}
             />
