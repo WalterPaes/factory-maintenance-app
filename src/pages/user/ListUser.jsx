@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import { Table, Button, Badge } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import UserService from "../../services/UserService";
 
 function ListUser() {
     const [pageTitle] = useState("Listagem de Usuários");
@@ -10,16 +10,18 @@ function ListUser() {
     const [errorMsg, setErrorMsg] = useState(false);
 
     useEffect(() => {
-        api.get('/users')
-          .then((response) => {
-            setUsers(response.data.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+        UserService.all().then((response) => {
+            switch(response.status) {
+                case 200:
+                    setUsers(response.data.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, []);
 
     return(

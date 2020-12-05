@@ -2,7 +2,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import MaintenanceService from "../../services/MaintenanceService";
+import EquipmentService from "../../services/EquipmentService";
 
 function EditMaintenance({ match }) {
     const [pageTitle] = useState("Editar Manutenção");
@@ -27,63 +28,62 @@ function EditMaintenance({ match }) {
 
         let id = match.params.maintenance_id
     
-        api.put('/maintenances' + id, {
-                start,
-                end,
-                description,
-                equipment_id
-            })
-              .then((response) => {
-                setIsLoading(false);
-                setIsSuccess(true);
-              })
-              .catch((error) => {
-                if (error.response.status === 401) {
-                    window.location.href = "/logout";
-                }
+        MaintenanceService.edit(id, {start, end, description, equipment_id}).then((response) => {
+            setIsLoading(false);
 
-                setIsLoading(false);
-                if (error.response.status === 422) {
-                    setErrorMsg('Preencha corretamente o formulário!')
-                    setErrors(error.response.data);
-                }
-                
-                if (error.response.status === 500) {
-                    setErrorMsg('Um erro ocorreu!')
-                }
-              });
+            if (response.status === 200) {
+                setIsSuccess(true);
+            }
+
+            if (response.status === 401) {
+                window.location.href = "/logout";
+            }
+
+            if (response.status === 422) {
+                setErrorMsg('Preencha corretamente o formulário!')
+                setErrors(response.data);
+            }
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [start, end, description, equipment_id, match.params.maintenance_id]);
 
     useEffect(() => {
-        api.get('/equipments')
-          .then((response) => {
-            setEquipments(response.data.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+        EquipmentService.all().then((response) => {
+            switch(response.status) {
+                case 200:
+                    setEquipments(response.data.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, []);
 
     useEffect(() => {
         let id = match.params.maintenance_id;
         
-        api.get('/maintenances/' + id)
-          .then((response) => {
-            let maintenance = response.data;
-            setStart(maintenance.start)
-            setEnd(maintenance.end)
-            setDescription(maintenance.description)
-            setEquipmentId(maintenance.equipment_id)
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+        MaintenanceService.show(id).then((response) => {
+            switch(response.status) {
+                case 200:
+                    let maintenance = response.data;
+                    setStart(maintenance.start)
+                    setEnd(maintenance.end)
+                    setDescription(maintenance.description)
+                    setEquipmentId(maintenance.equipment_id)
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, [match.params.maintenance_id]);
     
     return(

@@ -1,14 +1,15 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import MaintenanceService from "../../services/MaintenanceService";
 
 function ShowMaintenance({ match }) {
     const [pageTitle] = useState("Detalhes da Manutenção");
     const [btnEdit] = useState("Editar");
     const [btnDelete] = useState("Excluir");
     const [errorMsg, setErrorMsg] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [maintenance, setMaintenance] = useState({
         equipment: {
             name: ""
@@ -21,16 +22,43 @@ function ShowMaintenance({ match }) {
     useEffect(() => {
         let maintenance_id = match.params.maintenance_id;
         
-        api.get('/maintenances/' + maintenance_id)
-          .then((response) => {
-            setMaintenance(response.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
+        MaintenanceService.show(maintenance_id).then((response) => {
+            switch(response.status) {
+                case 200:
+                    setMaintenance(response.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
+            }
+        });
+    }, [match.params.maintenance_id]);
+    
+    const handleDelete = useCallback((event)=>{
+        event.preventDefault();
+
+        setErrorMsg(false);
+        setIsLoading(true);
+    
+        let id = match.params.maintenance_id;
+
+        MaintenanceService.delete(id).then((response) => {
+            setIsLoading(false);
+
+            if (response.status === 204) {
+                window.location.href = "/usuarios";
+            }
+
+            if (response.status === 401) {
                 window.location.href = "/logout";
             }
-          });
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [match.params.maintenance_id]);
 
     return(
@@ -39,7 +67,7 @@ function ShowMaintenance({ match }) {
                 success={false}
                 error={errorMsg}
                 errors={false}
-                loading={false}
+                loading={isLoading}
             />
 
             <Card body className="text-left mb-3">
@@ -84,7 +112,7 @@ function ShowMaintenance({ match }) {
                 { btnEdit }
             </Button>
 
-            <Button href={"/excluir-manutencao/" + maintenance.id} variant="danger" type="reset" size="sm" block>
+            <Button variant="danger" type="button" size="sm" block onClick={handleDelete}>
                 { btnDelete }
             </Button>
         </PageLayout>

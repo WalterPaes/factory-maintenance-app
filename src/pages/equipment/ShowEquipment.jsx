@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import { Card, Row, Col, Badge, Button, ListGroup } from "react-bootstrap";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import EquipmentService from "../../services/EquipmentService";
 
 function ShowEquipment({ match }) {
     const [pageTitle] = useState("Detalhes do Equipamento");
@@ -12,35 +12,65 @@ function ShowEquipment({ match }) {
     const [btnDelete] = useState("Excluir");
     const [maintenances, setMaintenances] = useState([]);
     const [errorMsg, setErrorMsg] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
         
-        api.get('/equipments/' + equipment_id)
-          .then((response) => {
-            setEquipment(response.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
+        EquipmentService.show(equipment_id).then((response) => {
+            switch(response.status) {
+                case 200:
+                    setEquipment(response.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
+            }
+        });
+    }, [match.params.equipment_id]);
+
+    const handleDelete = useCallback((event)=>{
+        event.preventDefault();
+
+        setErrorMsg(false);
+        setIsLoading(true);
+    
+        let id = match.params.equipment_id;
+
+        EquipmentService.delete(id).then((response) => {
+            setIsLoading(false);
+
+            if (response.status === 204) {
+                window.location.href = "/usuarios";
+            }
+
+            if (response.status === 401) {
                 window.location.href = "/logout";
             }
-          });
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [match.params.equipment_id]);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
         
-        api.get("/equipments/" + equipment_id + "/maintenances")
-          .then((response) => {
-            setMaintenances(response.data.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+        EquipmentService.maintenances(equipment_id).then((response) => {
+            switch(response.status) {
+                case 200:
+                    setMaintenances(response.data.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, [match.params.equipment_id]);
 
     return(
@@ -49,7 +79,7 @@ function ShowEquipment({ match }) {
                 success={false}
                 error={errorMsg}
                 errors={false}
-                loading={false}
+                loading={isLoading}
             />
 
             <Card body className="text-left mb-3">
@@ -110,7 +140,7 @@ function ShowEquipment({ match }) {
                 { btnEdit }
             </Button>
 
-            <Button href={"/excluir-equipamento/" + equipment.id} variant="danger" type="reset" size="sm" block>
+            <Button variant="danger" type="button" size="sm" block onClick={handleDelete}>
                 { btnDelete }
             </Button>
         </PageLayout>

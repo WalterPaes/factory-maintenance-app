@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import { Card, Row, Col, Badge, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import UserService from "../../services/UserService";
 
 function ShowUser({ match }) {
     const [pageTitle] = useState("Detalhes do Usuário");
@@ -10,20 +10,48 @@ function ShowUser({ match }) {
     const [btnEdit] = useState("Editar");
     const [btnDelete] = useState("Excluir");
     const [errorMsg, setErrorMsg] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         let user_id = match.params.user_id;
         
-        api.get('/users/' + user_id)
-          .then((response) => {
-            setUser(response.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
+        UserService.show(user_id).then((response) => {
+            switch(response.status) {
+                case 200:
+                    setUser(response.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
+            }
+        });
+    }, [match.params.user_id]);
+
+    const handleDelete = useCallback((event)=>{
+        event.preventDefault();
+
+        setErrorMsg(false);
+        setIsLoading(true);
+    
+        let user_id = match.params.user_id;
+
+        UserService.delete(user_id).then((response) => {
+            setIsLoading(false);
+
+            if (response.status === 204) {
+                window.location.href = "/usuarios";
+            }
+
+            if (response.status === 401) {
                 window.location.href = "/logout";
             }
-          });
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [match.params.user_id]);
 
     return(
@@ -32,7 +60,7 @@ function ShowUser({ match }) {
                 success={false}
                 error={errorMsg}
                 errors={false}
-                loading={false}
+                loading={isLoading}
             />
             
             <Card body className="text-left mb-3">
@@ -74,7 +102,7 @@ function ShowUser({ match }) {
                 { btnEdit }
             </Button>
 
-            <Button href={"/excluir-usuario/" + user.id} variant="danger" type="reset" size="sm" block>
+            <Button variant="danger" type="button" size="sm" block onClick={handleDelete}>
                 { btnDelete }
             </Button>
         </PageLayout>

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import EquipmentService from "../../services/EquipmentService";
 
 function CreateEquipment() {
     const [pageTitle] = useState("Cadastro de Equipamento");
@@ -22,29 +22,26 @@ function CreateEquipment() {
         setErrorMsg(false);
         setIsLoading(true);
     
-        api.post('/equipments', {
-                name, 
-                description,
-            })
-              .then((response) => {
-                setIsLoading(false);
-                setIsSuccess(true);
-              })
-              .catch((error) => {
-                if (error.response.status === 401) {
-                    window.location.href = "/logout";
-                }
+        EquipmentService.create({name, description}).then((response) => {
+            setIsLoading(false);
 
-                setIsLoading(false);
-                if (error.response.status === 422) {
-                    setErrorMsg('Preencha corretamente o formulário!')
-                    setErrors(error.response.data);
-                }
-                
-                if (error.response.status === 500) {
-                    setErrorMsg('Um erro ocorreu!')
-                }
-              });
+            if (response.status === 201) {
+                setIsSuccess(true);
+            }
+
+            if (response.status === 401) {
+                window.location.href = "/logout";
+            }
+
+            if (response.status === 422) {
+                setErrorMsg('Preencha corretamente o formulário!')
+                setErrors(response.data);
+            }
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [name, description]);
     
     return(

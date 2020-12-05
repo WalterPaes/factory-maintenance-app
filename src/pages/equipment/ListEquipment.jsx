@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import { Table, Button, Badge } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import EquipmentService from "../../services/EquipmentService";
 
 function ListEquipment() {
     const [pageTitle] = useState("Listagem de Equipamentos");
@@ -10,20 +10,18 @@ function ListEquipment() {
     const [errorMsg, setErrorMsg] = useState(false);
 
     useEffect(() => {
-        api.get('/equipments', {},{
-            headers: {
-                'Content-Type': 'application/json'
+        EquipmentService.all().then((response) => {
+            switch(response.status) {
+                case 200:
+                    setEquipments(response.data.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-        })
-          .then((response) => {
-            setEquipments(response.data.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
-            }
-          });
+        });
     }, []);
 
     return(

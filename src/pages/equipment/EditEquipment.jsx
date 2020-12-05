@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import EquipmentService from "../../services/EquipmentService";
 
 function EditEquipment({ match }) {
     const [pageTitle] = useState("Editar Equipamento");
@@ -23,47 +23,46 @@ function EditEquipment({ match }) {
         setIsLoading(true);
 
         let equipment_id = match.params.equipment_id;
-    
-        api.put('/equipments/' + equipment_id, {
-                name, 
-                description,
-            })
-              .then((response) => {
-                setIsLoading(false);
-                setIsSuccess(true);
-              })
-              .catch((error) => {
-                if (error.response.status === 401) {
-                    window.location.href = "/logout";
-                }
 
-                setIsLoading(false);
-                if (error.response.status === 422) {
-                    setErrorMsg('Preencha corretamente o formulário!')
-                    setErrors(error.response.data);
-                }
-                
-                if (error.response.status === 500) {
-                    setErrorMsg('Um erro ocorreu!')
-                }
-              });
+        EquipmentService.edit(equipment_id, {name, description}).then((response) => {
+            setIsLoading(false);
+
+            if (response.status === 200) {
+                setIsSuccess(true);
+            }
+
+            if (response.status === 401) {
+                window.location.href = "/logout";
+            }
+
+            if (response.status === 422) {
+                setErrorMsg('Preencha corretamente o formulário!')
+                setErrors(response.data);
+            }
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [name, description, match.params.equipment_id]);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
         
-        api.get('/equipments/' + equipment_id)
-          .then((response) => {
-            let equipment = response.data;
+        EquipmentService.show(equipment_id).then((response) => {
+            switch(response.status) {
+                case 200:
+                    let equipment = response.data;
             setName(equipment.name);
             setDescription(equipment.description);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, [match.params.equipment_id]);
     
     return(

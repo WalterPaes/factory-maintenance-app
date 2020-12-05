@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import { Table, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import MaintenanceService from "../../services/MaintenanceService";
 
 function ListMaintenance() {
     const [pageTitle] = useState("Listagem de Manutenções");
@@ -10,16 +10,18 @@ function ListMaintenance() {
     const [errorMsg, setErrorMsg] = useState(false);
 
     useEffect(() => {
-        api.get('/maintenances')
-          .then((response) => {
-            setMaintenances(response.data.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+        MaintenanceService.all().then((response) => {
+            switch(response.status) {
+                case 200:
+                    setMaintenances(response.data.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, []);
 
     return(

@@ -2,7 +2,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
+import MaintenanceService from "../../services/MaintenanceService";
+import EquipmentService from "../../services/EquipmentService";
 
 function CreateMaintenance() {
     const [pageTitle] = useState("Cadastro de Manutenção");
@@ -24,45 +25,42 @@ function CreateMaintenance() {
         setIsSuccess(false);
         setErrorMsg(false);
         setIsLoading(true);
-    
-        api.post('/maintenances', {
-                start,
-                end,
-                description,
-                equipment_id
-            })
-              .then((response) => {
-                setIsLoading(false);
-                setIsSuccess(true);
-              })
-              .catch((error) => {
-                if (error.response.status === 401) {
-                    window.location.href = "/logout";
-                }
 
-                setIsLoading(false);
-                if (error.response.status === 422) {
-                    setErrorMsg('Preencha corretamente o formulário!')
-                    setErrors(error.response.data);
-                }
-                
-                if (error.response.status === 500) {
-                    setErrorMsg('Um erro ocorreu!')
-                }
-              });
+        MaintenanceService.create({start, end, description, equipment_id}).then((response) => {
+            setIsLoading(false);
+
+            if (response.status === 201) {
+                setIsSuccess(true);
+            }
+
+            if (response.status === 401) {
+                window.location.href = "/logout";
+            }
+
+            if (response.status === 422) {
+                setErrorMsg('Preencha corretamente o formulário!')
+                setErrors(response.data);
+            }
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [start, end, description, equipment_id]);
 
     useEffect(() => {
-        api.get('/equipments')
-          .then((response) => {
-            setEquipments(response.data.data);
-          })
-          .catch((error) => {
-            setErrorMsg('Um erro ocorreu!')
-            if (error.response.status === 401) {
-                window.location.href = "/logout";
+        EquipmentService.all().then((response) => {
+            switch(response.status) {
+                case 200:
+                    setEquipments(response.data.data);
+                    break;
+                case 401:
+                    window.location.href = "/logout";
+                    break;
+                default:
+                    setErrorMsg('Um erro ocorreu!');
             }
-          });
+        });
     }, []);
     
     return(
