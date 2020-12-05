@@ -5,10 +5,15 @@ import FormAlertState from "../../components/forms/FormAlertState";
 import MaintenanceService from "../../services/MaintenanceService";
 import EquipmentService from "../../services/EquipmentService";
 
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker, { registerLocale } from "react-datepicker";
+import ptBr from 'date-fns/locale/pt-BR'
+registerLocale('pt-BR', ptBr)
+
 function CreateMaintenance() {
     const [pageTitle] = useState("Cadastro de Manutenção");
-    const [start, setStart] = useState("");
-    const [end, setEnd] = useState("");
+    const [start, setStart] = useState(new Date());
+    const [end, setEnd] = useState(start);
     const [description, setDescription] = useState("");
     const [equipments, setEquipments] = useState([]);
     const [equipment_id, setEquipmentId] = useState("");
@@ -74,18 +79,31 @@ function CreateMaintenance() {
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formStartDate">
-                    <Form.Control type="text" placeholder="Horário de Início" value={start} 
-                    onChange={(event) => {
-                        setStart(event.target.value)
-                    }}
-                    />
+                    <Form.Label>Horário Inicial</Form.Label>
+                    <br/>
+                    <DatePicker
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        selected={start}
+                        onChange={date => setStart(date)}
+                        customInput={<Form.Control />}
+                        timeInputLabel="Horário:"
+                        showTimeInput
+                        locale="pt-BR"
+                    ></DatePicker>
                 </Form.Group>
                 
                 <Form.Group controlId="formEndDate">
-                    <Form.Control type="text" placeholder="Horário do Fim" value={end} 
-                    onChange={(event) => {
-                        setEnd(event.target.value)
-                    }}/>
+                    <Form.Label>Horário Final</Form.Label>
+                    <br/>
+                    <DatePicker
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        selected={end}
+                        onChange={date => setEnd(date)}
+                        customInput={<Form.Control />}
+                        timeInputLabel="Horário:"
+                        showTimeInput
+                        locale="pt-BR"
+                    ></DatePicker>
                 </Form.Group>
 
                 <Form.Group controlId="formDescription">

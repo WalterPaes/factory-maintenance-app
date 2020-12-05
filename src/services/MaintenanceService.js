@@ -1,10 +1,14 @@
 import api from "./api";
 import AuthService from "./AuthService";
+import moment from "moment";
 
 class MaintenanceService {
     async create(data) {
         let result;
         try {
+            data.start = moment(data.start.getTime()).format('YYYY-MM-DD hh:mm:ss')
+            data.end = moment(data.end.getTime()).format('YYYY-MM-DD hh:mm:ss')
+
             let response = await api.post('/maintenances', data, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,8 +29,12 @@ class MaintenanceService {
     }
 
     async edit(id, data) {
+        console.log("data", data);
         let result;
         try {
+            data.start = moment(data.start.getTime()).format('YYYY-MM-DD hh:mm:ss')
+            data.end = moment(data.end.getTime()).format('YYYY-MM-DD hh:mm:ss')
+
             let response = await api.put('/maintenances/' + id, data, {
                 headers: {
                     'Content-Type': 'application/json',
