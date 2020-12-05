@@ -3,7 +3,6 @@ import { Redirect } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import api from "../../services/api";
 import AuthService from "../../services/AuthService";
 
 function LoginForm() {
@@ -22,29 +21,27 @@ function LoginForm() {
         setErrorMsg(false);
         setIsLoading(true);
 
-        api.post('/login', {username, password})
-              .then((response) => {
-                setIsLoading(false);
-                if (response.data.access_token) {
-                    AuthService.saveUser(response.data)
-                    window.location.href = "/home";
-                }
-              })
-              .catch((error) => {
-                if (error.response.status === 401) {
-                    window.location.href = "/logout";
-                }
+        AuthService.login({username, password}).then((response) => {
+            setIsLoading(false);
 
-                setIsLoading(false);
-                if (error.response.status === 422) {
-                    setErrorMsg('Preencha corretamente o formulário!')
-                    setErrors(error.response.data);
-                }
-                
-                if (error.response.status === 500) {
-                    setErrorMsg('Um erro ocorreu!')
-                }
-              });
+            if (response.status === 200) {
+                AuthService.saveUser(response.data);
+                window.location.href = "/home";
+            }
+
+            if (response.status === 401) {
+                window.location.href = "/logout";
+            }
+
+            if (response.status === 422) {
+                setErrorMsg('Preencha corretamente o formulário!')
+                setErrors(response.data);
+            }
+            
+            if (response.status === 500) {
+                setErrorMsg('Um erro ocorreu!')
+            }
+        });
     }, [username, password]);
 
     return(

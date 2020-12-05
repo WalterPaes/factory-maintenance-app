@@ -1,21 +1,26 @@
-//import api from "./api";
+import api from "./api";
 
 class AuthService {
-    // login(data) {
-    //     api.post('/login', data, {
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         }
-    //     }).then((response) => {
-    //         if (response.data.access_token) {
-                
-    //         }
-    //         return;
-    //     })
-    //     .catch((error) => {
-    //         console.log(error)
-    //     });
-    // }
+    async login(data) {
+        let result;
+        try {
+            let response = await api.post('/login', data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            result = {
+                status: response.status,
+                data: response.data
+            };
+        } catch(e) {
+            result = {
+                status: e.response.status,
+                data: e.response.data
+            };
+        }
+        return result;
+    }
 
     logged() {
         return (this.getUser() !== null);
