@@ -54,10 +54,10 @@ function CreateMaintenance() {
     }, [start, end, description, equipment_id]);
 
     useEffect(() => {
-        EquipmentService.all().then((response) => {
+        EquipmentService.actives().then((response) => {
             switch(response.status) {
                 case 200:
-                    setEquipments(response.data.data);
+                    setEquipments(response.data);
                     break;
                 case 401:
                     window.location.href = "/logout";
@@ -120,7 +120,7 @@ function CreateMaintenance() {
                     }}>
                         <option disabled selected>Selecione...</option>
                         {equipments.map((equipment) => (
-                            <option value={equipment.id}>{equipment.name}</option>
+                            <option key={equipment.id} value={equipment.id}>{equipment.name}</option>
                         ))}
                     </Form.Control>
                 </Form.Group>
@@ -129,7 +129,7 @@ function CreateMaintenance() {
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block>
+                <Button href="/manutencao" variant="danger" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>

@@ -2,13 +2,14 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import EquipmentService from "../../services/EquipmentService";
+import ComponentService from "../../services/ComponentService";
 
 function EditEquipment({ match }) {
-    const [pageTitle] = useState("Editar Equipamento");
+    const [pageTitle] = useState("Editar Componente");
     const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [localization, setLocalization] = useState("");
+    const [serial_number, setSerialNumber] = useState("");
+    const [model, setModel] = useState("");
+    const [manufacturer, setManufacturer] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
@@ -23,9 +24,9 @@ function EditEquipment({ match }) {
         setErrorMsg(false);
         setIsLoading(true);
 
-        let equipment_id = match.params.equipment_id;
+        let component_id = match.params.component_id;
 
-        EquipmentService.edit(equipment_id, {name, description, localization}).then((response) => {
+        ComponentService.edit(component_id, {name, serial_number, model, manufacturer}).then((response) => {
             setIsLoading(false);
 
             if (response.status === 200) {
@@ -45,18 +46,19 @@ function EditEquipment({ match }) {
                 setErrorMsg('Um erro ocorreu!')
             }
         });
-    }, [name, description, localization, match.params.equipment_id]);
+    }, [name, serial_number, model, manufacturer, match.params.component_id]);
 
     useEffect(() => {
-        let equipment_id = match.params.equipment_id;
+        let component_id = match.params.component_id;
         
-        EquipmentService.show(equipment_id).then((response) => {
+        ComponentService.show(component_id).then((response) => {
             switch(response.status) {
                 case 200:
-                    let equipment = response.data;
-                    setName(equipment.name);
-                    setDescription(equipment.description);
-                    setLocalization(equipment.localization);
+                    let component = response.data;
+                    setName(component.name);
+                    setSerialNumber(component.serial_number);
+                    setModel(component.model);
+                    setManufacturer(component.manufacturer);
                     break;
                 case 401:
                     window.location.href = "/logout";
@@ -65,7 +67,7 @@ function EditEquipment({ match }) {
                     setErrorMsg('Um erro ocorreu!');
             }
         });
-    }, [match.params.equipment_id]);
+    }, [match.params.component_id]);
     
     return(
         <PageLayout pageTitle={pageTitle} size="md">
@@ -77,7 +79,7 @@ function EditEquipment({ match }) {
             />
 
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formName">
+            <Form.Group controlId="formName">
                     <Form.Control type="text" placeholder="Nome" value={name} 
                     onChange={(event) => {
                         setName(event.target.value)
@@ -85,20 +87,28 @@ function EditEquipment({ match }) {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="formLocalization">
-                    <Form.Control type="text" placeholder="Localização" value={localization} 
+                <Form.Group controlId="formSerialNumber">
+                    <Form.Control type="text" placeholder="Nº de Série" value={serial_number} 
                     onChange={(event) => {
-                        setLocalization(event.target.value)
+                        setSerialNumber(event.target.value)
                     }}
                     />
                 </Form.Group>
 
-                <Form.Group controlId="formDescription">
-                    <Form.Control as="textarea" rows={3}
-                    placeholder="Descrição" value={description}
+                <Form.Group controlId="formModel">
+                    <Form.Control type="text" placeholder="Modelo" value={model} 
                     onChange={(event) => {
-                        setDescription(event.target.value)
-                    }}/>
+                        setModel(event.target.value)
+                    }}
+                    />
+                </Form.Group>
+
+                <Form.Group controlId="formManufacturer">
+                    <Form.Control type="text" placeholder="Fabricante" value={manufacturer} 
+                    onChange={(event) => {
+                        setManufacturer(event.target.value)
+                    }}
+                    />
                 </Form.Group>
 
                 <Button variant="primary" type="submit" size="sm" block>

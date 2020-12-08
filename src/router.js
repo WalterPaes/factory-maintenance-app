@@ -16,6 +16,11 @@ import EditMaintenance from './pages/maintenance/EditMaintenance';
 import ListMaintenance from './pages/maintenance/ListMaintenance';
 import ShowMaintenance from './pages/maintenance/ShowMaintenance';
 
+import CreateComponent from './pages/component/CreateComponent';
+import EditComponent from './pages/component/EditComponent';
+import ListComponent from './pages/component/ListComponent';
+import ShowComponent from './pages/component/ShowComponent';
+
 import Login from './pages/auth/Login';
 import Home from './pages/home/Home';
 
@@ -50,6 +55,11 @@ export default function Routes(){
         <PrivateRoute exact path="/equipamento/:equipment_id" component={ShowEquipment} />
         <PrivateRoute exact path="/cadastrar-equipamento" component={CreateEquipament} />
         <PrivateRoute exact path="/editar-equipamento/:equipment_id" component={EditEquipment} />
+
+        <PrivateRoute exact path="/componentes" component={ListComponent} />
+        <PrivateRoute exact path="/componente/:component_id" component={ShowComponent} />
+        <PrivateRoute exact path="/cadastrar-componente" component={CreateComponent} />
+        <PrivateRoute exact path="/editar-componente/:component_id" component={EditComponent} />
         
         <PrivateRoute exact path="/manutencao" component={ListMaintenance} />
         <PrivateRoute exact path="/manutencao/:maintenance_id" component={ShowMaintenance} />

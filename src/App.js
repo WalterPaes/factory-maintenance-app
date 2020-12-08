@@ -2,18 +2,16 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import NavbarMenu from './components/layout/NavbarMenu';
-import { Container, Jumbotron } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import Routes from './router';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App bg-light">
       <NavbarMenu></NavbarMenu>
-      <Jumbotron>
-        <Container>
+      <Container>
           <Routes></Routes>
         </Container>
-      </Jumbotron>
     </div>
   );
 }

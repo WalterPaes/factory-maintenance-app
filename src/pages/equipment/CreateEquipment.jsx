@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
@@ -8,6 +8,7 @@ function CreateEquipment() {
     const [pageTitle] = useState("Cadastro de Equipamento");
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [localization, setLocalization] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +23,7 @@ function CreateEquipment() {
         setErrorMsg(false);
         setIsLoading(true);
     
-        EquipmentService.create({name, description}).then((response) => {
+        EquipmentService.create({name, description, localization}).then((response) => {
             setIsLoading(false);
 
             if (response.status === 201) {
@@ -42,7 +43,7 @@ function CreateEquipment() {
                 setErrorMsg('Um erro ocorreu!')
             }
         });
-    }, [name, description]);
+    }, [name, description, localization]);
     
     return(
         <PageLayout pageTitle={pageTitle} size="md">
@@ -62,6 +63,14 @@ function CreateEquipment() {
                     />
                 </Form.Group>
 
+                <Form.Group controlId="formLocalization">
+                    <Form.Control type="text" placeholder="Localização" value={localization} 
+                    onChange={(event) => {
+                        setLocalization(event.target.value)
+                    }}
+                    />
+                </Form.Group>
+
                 <Form.Group controlId="formDescription">
                     <Form.Control as="textarea" rows={3}
                     placeholder="Descrição" value={description}
@@ -74,7 +83,7 @@ function CreateEquipment() {
                     { btnSave }
                 </Button>
 
-                <Button variant="danger" type="reset" size="sm" block>
+                <Button href="/equipamentos" variant="danger" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>

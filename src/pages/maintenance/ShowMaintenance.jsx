@@ -48,7 +48,7 @@ function ShowMaintenance({ match }) {
             setIsLoading(false);
 
             if (response.status === 204) {
-                window.location.href = "/usuarios";
+                window.location.href = "/manutencao";
             }
 
             if (response.status === 401) {

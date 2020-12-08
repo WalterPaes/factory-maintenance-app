@@ -1,14 +1,15 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Form, Button } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
-import EquipmentService from "../../services/EquipmentService";
+import ComponentService from "../../services/ComponentService";
 
-function EditEquipment({ match }) {
-    const [pageTitle] = useState("Editar Equipamento");
+function CreateComponent() {
+    const [pageTitle] = useState("Cadastro de Componente");
     const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [localization, setLocalization] = useState("");
+    const [serial_number, setSerialNumber] = useState("");
+    const [model, setModel] = useState("");
+    const [manufacturer, setManufacturer] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
@@ -22,13 +23,11 @@ function EditEquipment({ match }) {
         setIsSuccess(false);
         setErrorMsg(false);
         setIsLoading(true);
-
-        let equipment_id = match.params.equipment_id;
-
-        EquipmentService.edit(equipment_id, {name, description, localization}).then((response) => {
+    
+        ComponentService.create({name, serial_number, model, manufacturer}).then((response) => {
             setIsLoading(false);
 
-            if (response.status === 200) {
+            if (response.status === 201) {
                 setIsSuccess(true);
             }
 
@@ -45,27 +44,7 @@ function EditEquipment({ match }) {
                 setErrorMsg('Um erro ocorreu!')
             }
         });
-    }, [name, description, localization, match.params.equipment_id]);
-
-    useEffect(() => {
-        let equipment_id = match.params.equipment_id;
-        
-        EquipmentService.show(equipment_id).then((response) => {
-            switch(response.status) {
-                case 200:
-                    let equipment = response.data;
-                    setName(equipment.name);
-                    setDescription(equipment.description);
-                    setLocalization(equipment.localization);
-                    break;
-                case 401:
-                    window.location.href = "/logout";
-                    break;
-                default:
-                    setErrorMsg('Um erro ocorreu!');
-            }
-        });
-    }, [match.params.equipment_id]);
+    }, [name, serial_number, model, manufacturer]);
     
     return(
         <PageLayout pageTitle={pageTitle} size="md">
@@ -85,27 +64,35 @@ function EditEquipment({ match }) {
                     />
                 </Form.Group>
 
-                <Form.Group controlId="formLocalization">
-                    <Form.Control type="text" placeholder="Localização" value={localization} 
+                <Form.Group controlId="formSerialNumber">
+                    <Form.Control type="text" placeholder="Nº de Série" value={serial_number} 
                     onChange={(event) => {
-                        setLocalization(event.target.value)
+                        setSerialNumber(event.target.value)
                     }}
                     />
                 </Form.Group>
 
-                <Form.Group controlId="formDescription">
-                    <Form.Control as="textarea" rows={3}
-                    placeholder="Descrição" value={description}
+                <Form.Group controlId="formModel">
+                    <Form.Control type="text" placeholder="Modelo" value={model} 
                     onChange={(event) => {
-                        setDescription(event.target.value)
-                    }}/>
+                        setModel(event.target.value)
+                    }}
+                    />
+                </Form.Group>
+
+                <Form.Group controlId="formManufacturer">
+                    <Form.Control type="text" placeholder="Fabricante" value={manufacturer} 
+                    onChange={(event) => {
+                        setManufacturer(event.target.value)
+                    }}
+                    />
                 </Form.Group>
 
                 <Button variant="primary" type="submit" size="sm" block>
                     { btnSave }
                 </Button>
 
-                <Button href={"/equipamento/" + match.params.equipment_id} variant="danger" size="sm" block>
+                <Button variant="danger" type="reset" size="sm" block>
                     { btnCancel }
                 </Button>
             </Form>
@@ -113,4 +100,4 @@ function EditEquipment({ match }) {
     );
 }
 
-export default EditEquipment;
+export default CreateComponent;
