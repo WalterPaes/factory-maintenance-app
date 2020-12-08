@@ -56,7 +56,7 @@ function EditMaintenance({ match }) {
     }, [start, end, description, equipment_id, match.params.maintenance_id]);
 
     useEffect(() => {
-        EquipmentService.all().then((response) => {
+        EquipmentService.actives().then((response) => {
             switch(response.status) {
                 case 200:
                     setEquipments(response.data.data);

@@ -76,8 +76,14 @@ class MaintenanceService {
         return result;
     }
 
-    async all() {
+    async all(pageNum) {
         let result;
+        let path = '/maintenances'
+
+        if (pageNum) {
+            path = '/maintenances?page='+pageNum
+        }
+        
         try {
             let response = await api.get('/maintenances', {
                 headers: {

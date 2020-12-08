@@ -16,7 +16,7 @@ function NavbarMenu() {
     }, []);
 
     return(
-        <Navbar bg="light" expand="lg">
+        <Navbar bg="success" variant="dark" expand="lg" className="bg-success mb-3">
             <Navbar.Brand href="/home">Gerenciamento</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
@@ -34,6 +34,12 @@ function NavbarMenu() {
                         <NavDropdown.Item href="/equipamentos">Lista de Equipamentos</NavDropdown.Item>
                         <NavDropdown.Divider />
                         <NavDropdown.Item href="/cadastrar-equipamento">Cadastro de Equipamentos</NavDropdown.Item>
+                    </NavDropdown>
+
+                    <NavDropdown title="Componentes">
+                        <NavDropdown.Item href="/componentes">Lista de Componentes</NavDropdown.Item>
+                        <NavDropdown.Divider />
+                        <NavDropdown.Item href="/cadastrar-componente">Cadastro de Componentes</NavDropdown.Item>
                     </NavDropdown>
 
                     <NavDropdown title="Manutenções">
