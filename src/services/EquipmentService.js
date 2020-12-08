@@ -77,7 +77,7 @@ class EquipmentService {
         }
 
         try {
-            let response = await api.get('/equipments', {
+            let response = await api.get(path, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + AuthService.getToken()

@@ -85,7 +85,7 @@ class MaintenanceService {
         }
         
         try {
-            let response = await api.get('/maintenances', {
+            let response = await api.get(path, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + AuthService.getToken()
