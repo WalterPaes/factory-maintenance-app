@@ -69,6 +69,7 @@ function ShowComponent({ match }) {
                         <th>#</th>
                         <th>Nº de Série</th>
                         <th>Nome</th>
+                        <th>Modelo</th>
                         <th>Fabricante</th>
                     </tr>
                 </thead>
@@ -77,6 +78,7 @@ function ShowComponent({ match }) {
                         <td>{component.id}</td>
                         <td>{component.serial_number}</td>
                         <td>{component.name}</td>
+                        <td>{component.model}</td>
                         <td>{component.manufacturer}</td>
                     </tr>
                 </tbody>

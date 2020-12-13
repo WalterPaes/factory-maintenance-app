@@ -9,6 +9,7 @@ function EditEquipment({ match }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [localization, setLocalization] = useState("");
+    const [status, setStatus] = useState("");
     const [btnSave] = useState("Salvar");
     const [btnCancel] = useState("Cancelar");
     const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +26,7 @@ function EditEquipment({ match }) {
 
         let equipment_id = match.params.equipment_id;
 
-        EquipmentService.edit(equipment_id, {name, description, localization}).then((response) => {
+        EquipmentService.edit(equipment_id, {name, description, localization, status}).then((response) => {
             setIsLoading(false);
 
             if (response.status === 200) {
@@ -45,7 +46,7 @@ function EditEquipment({ match }) {
                 setErrorMsg('Um erro ocorreu!')
             }
         });
-    }, [name, description, localization, match.params.equipment_id]);
+    }, [name, description, localization, status, match.params.equipment_id]);
 
     useEffect(() => {
         let equipment_id = match.params.equipment_id;
@@ -57,6 +58,7 @@ function EditEquipment({ match }) {
                     setName(equipment.name);
                     setDescription(equipment.description);
                     setLocalization(equipment.localization);
+                    setStatus(equipment.status);
                     break;
                 case 401:
                     window.location.href = "/logout";
@@ -99,6 +101,15 @@ function EditEquipment({ match }) {
                     onChange={(event) => {
                         setDescription(event.target.value)
                     }}/>
+                </Form.Group>
+
+                <Form.Group controlId="formStatus">
+                    <Form.Control as="select" onChange={(event) => {
+                        setStatus(event.target.value);
+                    }}>
+                        <option value={1}>Ativo</option>
+                        <option value={0}>Inativo</option>
+                    </Form.Control>
                 </Form.Group>
 
                 <Button variant="primary" type="submit" size="sm" block>

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from "react";
-import { Card, Row, Col, Button } from "react-bootstrap";
+import { Card, Button, Table } from "react-bootstrap";
 import PageLayout from "../../components/layout/PageLayout";
 import FormAlertState from "../../components/forms/FormAlertState";
 import MaintenanceService from "../../services/MaintenanceService";
@@ -70,42 +70,29 @@ function ShowMaintenance({ match }) {
                 loading={isLoading}
             />
 
+            <Table striped bordered responsive>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data de Início</th>
+                        <th>Data de Fim</th>
+                        <th>Responsável</th>
+                        <th>Equipamento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr key={maintenance.id}>
+                        <td>{maintenance.id}</td>
+                        <td>{maintenance.start}</td>
+                        <td>{maintenance.end}</td>
+                        <td>{maintenance.user.name}</td>
+                        <td>{maintenance.equipment.name}</td>
+                    </tr>
+                </tbody>
+            </Table>
+
             <Card body className="text-left mb-3">
-                <Row>
-                    <Col>
-                        <h5>ID</h5>
-                        <p>{maintenance.id}</p>
-                    </Col>
-
-                    <Col>
-                        <h5>DATA DE INÍCIO</h5>
-                        <p>{maintenance.start}</p>
-                    </Col>
-
-                    <Col>
-                        <h5>DATA DO FIM</h5>
-                        <p>{maintenance.end}</p>
-                    </Col>
-                </Row>
-
-                <Row>
-                    <Col>
-                        <h5>EQUIPAMENTO</h5>
-                        <p>{maintenance.equipment.name}</p>
-                    </Col>
-
-                    <Col>
-                        <h5>USUÁRIO RESPONSÁVEL</h5>
-                        <p>{maintenance.user.name}</p>
-                    </Col>
-                </Row>
-
-                <Row>
-                    <Col>
-                        <h5>DESCRIÇÃO DO SERVIÇO</h5>
-                        <p>{maintenance.description}</p>
-                    </Col>
-                </Row>
+                <b>Descrição:</b> {maintenance.description}
             </Card>
 
             <Button href={"/editar-manutencao/" + maintenance.id} variant="primary" size="sm" block>
