@@ -16,8 +16,15 @@ function NavbarMenu() {
     }, []);
 
     return(
-        <Navbar bg="success" variant="dark" expand="lg" className="bg-success mb-3">
-            <Navbar.Brand href="/home">Gerenciamento</Navbar.Brand>
+        <Navbar bg="light" variant="light" expand="lg" className="mb-3">
+            <Navbar.Brand href="/home">
+                <img 
+                    src="/logo_01.png" 
+                    alt="logo" 
+                    width="150"
+                    height="50"
+                />
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">

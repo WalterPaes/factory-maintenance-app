@@ -7,11 +7,11 @@ import Routes from './router';
 
 function App() {
   return (
-    <div className="App bg-light">
+    <div className="App">
       <NavbarMenu></NavbarMenu>
       <Container>
-          <Routes></Routes>
-        </Container>
+        <Routes></Routes>
+      </Container>
     </div>
   );
 }
